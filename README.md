@@ -35,7 +35,7 @@
 
 ## 🚀 Project Overview
 
-**Proxmox VE Helper-Scripts** is a collection of tools to simplify the setup and management of Proxmox Virtual Environment (VE). Originally created by [tteck](https://github.com/tteck), these scripts are now continued by the community. Our goal is to preserve and expand upon tteck's work, providing an ongoing resource for Proxmox users worldwide.
+**Proxmox VE Helper-Scripts** is a collection of tools to simplify the setup and management of Proxmox Virtual Environment (VE). Originally created by [tteck](https://github.com/tteck), these scripts are now continued by the community. Our goal is to preserve and expand upon tteck's work, providing an ongoing resource for Proxmox users worldwide - fp.
 
 ---
 
