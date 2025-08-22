@@ -1,0 +1,9 @@
+{
+  "name": "Apache Guacamole (Upgradable)",
+  "id": "apache-guacamole-upgradable",
+  "type": "ct",
+  "desc": "Upgradable Apache Guacamole LXC (Ubuntu 24.04, latest Guacamole).",
+  "url": "https://raw.githubusercontent.com/mauropesu/ProxmoxVE/main/ct/apache-guacamole-upgradable.sh",
+  "icon": "mdi:avocado",
+  "maintainer": "@mauropesu"
+}
