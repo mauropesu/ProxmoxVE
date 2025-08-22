@@ -14,12 +14,15 @@
 
 set -Eeuo pipefail
 
-# Try to source Helper functions if the framework passes a path; otherwise provide local fallbacks.
+# Optional: source Proxmox Helper framework if available; otherwise use local fallbacks.
 if [[ -n "${FUNCTIONS_FILE_PATH:-}" && -r "${FUNCTIONS_FILE_PATH}" ]]; then
   # shellcheck disable=SC1090
   source "${FUNCTIONS_FILE_PATH}"
+elif [[ -r /etc/community-scripts/.bash_functions ]]; then
+  # shellcheck disable=SC1091
+  source /etc/community-scripts/.bash_functions
 else
-  # ---- Minimal fallbacks so the script can run standalone ----
+  # --------- Minimal local fallbacks so the script can run standalone ----------
   color() { :; }
   msg_info()  { echo -e "\e[34m[INFO]\e[0m  $*"; }
   msg_ok()    { echo -e "\e[32m[ OK ]\e[0m  $*"; }
@@ -27,34 +30,28 @@ else
   msg_error() { echo -e "\e[31m[ERR]\e[0m   $*"; }
   die() { msg_error "$*"; exit 1; }
 
-  # keep noise low but visible; set to ">/dev/null 2>&1" to silence
+  # send tool output to screen; set to '>/dev/null 2>&1' to silence
   STD=""
 
   verb_ip6() { :; }
   catch_errors() { trap 'msg_error "Unexpected error (line $LINENO)"; exit 1' ERR; }
   setting_up_container() { :; }
   network_check() { :; }
-
-  # Basic OS update suitable for Ubuntu 24.04
   update_os() {
     export DEBIAN_FRONTEND=noninteractive
     apt-get update -y
     apt-get dist-upgrade -y
   }
-
-  # MariaDB setup for Ubuntu 24.04 (service name: mariadb)
   setup_mariadb() {
     export DEBIAN_FRONTEND=noninteractive
     apt-get install -y mariadb-server mariadb-client
     systemctl enable --now mariadb
   }
-
   motd_ssh() { :; }
   customize() { :; }
 fi
 
 # --- Community-Scripts integration ---
-source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
 color
 verb_ip6
 catch_errors
@@ -131,6 +128,7 @@ SQL
   echo "Database Password: ${DB_PASS}"
   echo "Database Name: ${DB_NAME}"
 } >> ~/guacamole.creds
+chmod 600 ~/guacamole.creds
 
 msg_ok "Database ready: ${DB_NAME} / ${DB_USER}"
 
@@ -176,7 +174,7 @@ JDBC_DIR="$(find "${TMPD}" -maxdepth 1 -type d -name "guacamole-auth-jdbc-*")"
 cp -f "${JDBC_DIR}/mysql/guacamole-auth-jdbc-mysql-${GUAC_VER}.jar" /etc/guacamole/extensions/
 
 # Load schema into DB (only if DB is empty)
-TABLES=$($STD mariadb -N -B -u root -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='${DB_NAME}';")
+TABLES=$(mariadb -N -B -u root -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='${DB_NAME}';")
 if [[ "${TABLES}" -eq 0 ]]; then
   msg_info "Populating database schema"
   cat "${JDBC_DIR}/mysql/schema/"*.sql | $STD mariadb -u root "${DB_NAME}"
