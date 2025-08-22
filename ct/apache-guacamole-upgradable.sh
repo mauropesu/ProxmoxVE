@@ -91,15 +91,23 @@ detect_java_home() {
 # Install base packages
 # -----------------------------
 msg_info "Installing base packages (MariaDB, guacd, Java, tools)"
+
+# Pick the right guacd package name per distro
+if apt-cache show guacd >/dev/null 2>&1; then
+  PKG_GUACD="guacd"
+else
+  PKG_GUACD="guacamole-server"
+fi
+
 $STD apt-get install -y \
   ca-certificates curl jq \
   mariadb-server mariadb-client \
-  guacd \
+  "$PKG_GUACD" \
   openjdk-21-jdk-headless \
   libmariadb-java \
   unzip
 
-# Make sure services are present but not started yet in odd images
+# Make sure services are present/startable
 systemctl enable --now mariadb guacd >/dev/null 2>&1 || true
 msg_ok "Installed base packages"
 
