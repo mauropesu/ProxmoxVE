@@ -321,3 +321,18 @@ msg_ok "Apache Guacamole ${GUAC_VER} is ready!"
 echo -e "  URL:    http://${IP}:8080/guacamole"
 echo -e "  DB Credentials saved at: ~/guacamole.creds"
 echo -e "  Update later with: sudo guacamole-update"
+
+# -------------------------------------
+# Point Tomcat’s ROOT to guacamole.war
+# -------------------------------------
+# inside the container
+sudo systemctl stop tomcat9
+cd /opt/apache-guacamole/tomcat9/webapps
+
+# remove the default ROOT app
+sudo rm -rf ROOT ROOT.war
+
+# make ROOT be Guacamole (symlink so your updater keeps working)
+sudo ln -s guacamole.war ROOT.war
+
+sudo systemctl start tomcat9
